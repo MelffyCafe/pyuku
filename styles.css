@@ -58,7 +58,7 @@
     --toc-active: #a5b5d0;
     --shadow: 0 8px 20px rgba(0,0,0,0.08);
     --blur-amount: 6px;
-    --bg-image: url('assets/lightmodetree.jpg');
+    --vh: 100%;
 }
 
 body.dark {
@@ -71,30 +71,50 @@ body.dark {
     --toc-hover: #3f4e5f;
     --toc-active: #6b7f94;
     --shadow: 0 8px 20px rgba(0,0,0,0.6);
-    --bg-image: url('assets/darkmodeland.jpg');
+}
+
+/* iOS viewport fixes */
+html {
+    height: -webkit-fill-available;
+    min-height: 100%;
+    background-image: url('assets/lightmodetree.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+html.dark {
+    background-image: url('assets/darkmodeland.jpg');
 }
 
 body {
     font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
-    background-image: var(--bg-image);
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
+    background: transparent;
     min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: calc(var(--vh) * 100);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 0 1rem;
     color: var(--text-main);
-    transition: background-image 0.2s ease, color 0.2s;
+    transition: color 0.2s ease;
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* FIX SCROLLING ISSUE */
-html, body {
-    overflow: visible !important;
-    overflow-y: scroll !important;
-    height: auto !important;
-    min-height: 100% !important;
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+    body {
+        min-height: -webkit-fill-available;
+    }
+    
+    html {
+        height: -webkit-fill-available;
+    }
 }
 
 .top-button-bar {
@@ -109,6 +129,7 @@ html, body {
 #darkmode-toggle {
     background: var(--toc-bg);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--accent-line);
     color: var(--text-main);
     padding: 0.6rem 1.4rem;
@@ -130,9 +151,10 @@ html, body {
     right: 30px;
     background: var(--toc-bg);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--accent-line);
     color: var(--text-main);
-    padding: 0.6rem 1.4rem;  /* MATCHED to dark mode button */
+    padding: 0.6rem 1.4rem;
     border-radius: 60px;
     font-size: 1rem;
     font-family: 'Lora', serif;
@@ -158,6 +180,7 @@ html, body {
     margin: 20px auto 20px;
     background-color: var(--bg-layer);
     backdrop-filter: blur(var(--blur-amount));
+    -webkit-backdrop-filter: blur(var(--blur-amount));
     padding: 2.5rem 3rem;
     border-radius: 20px;
     box-shadow: var(--shadow);
@@ -175,7 +198,7 @@ html, body {
     }
     
     #jumpToTop {
-        padding: 0.5rem 1rem;  /* MATCHED to dark mode button */
+        padding: 0.5rem 1rem;
         font-size: 0.9rem;
         bottom: 20px;
         right: 20px;
@@ -291,17 +314,16 @@ body.dark .chapter-link:hover {
     line-height: 1.7;
 }
 
-/* Updated chapter nav with a little bottom padding */
 .chapter-nav {
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
-    padding-bottom: 1rem;  /* Just a little space */
+    padding-bottom: 1rem;
 }
 
 @media (max-width: 600px) {
     .chapter-nav {
-        padding-bottom: 1.5rem;  /* Slightly more on mobile */
+        padding-bottom: 1.5rem;
     }
 }
 
@@ -330,7 +352,6 @@ body.dark .chapter-link:hover {
     text-transform: capitalize;
 }
 
-/* If you want to use Syne Mono somewhere */
 .mono-text {
     font-family: 'Syne Mono', monospace;
 }

@@ -48,6 +48,17 @@ window.changeChapter = function(direction) {
     }
 };
 
+// Function to update dark mode on html element
+function updateDarkMode(isDark) {
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+    }
+}
+
 // Wait for page to load before setting up
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DARK MODE DIAGNOSIS ===');
@@ -59,39 +70,43 @@ document.addEventListener('DOMContentLoaded', function() {
         
         darkModeBtn.addEventListener('click', function() {
             console.log('=== BUTTON CLICKED ===');
-            console.log('Before toggle - Body has dark class?', document.body.classList.contains('dark'));
             
-            document.body.classList.toggle('dark');
+            // Toggle both html and body classes
+            const isDark = !document.body.classList.contains('dark');
+            updateDarkMode(isDark);
             
             console.log('After toggle - Body has dark class?', document.body.classList.contains('dark'));
-            console.log('Current dark mode setting:', document.body.classList.contains('dark') ? 'dark' : 'light');
+            console.log('After toggle - HTML has dark class?', document.documentElement.classList.contains('dark'));
             
-            localStorage.setItem('darkMode', document.body.classList.contains('dark') ? 'dark' : 'light');
+            localStorage.setItem('darkMode', isDark ? 'dark' : 'light');
             console.log('Local storage saved as:', localStorage.getItem('darkMode'));
         });
     } else {
         console.log('ERROR: Dark mode button NOT found!');
     }
 
-    // Load dark mode preference - DEFAULT TO DARK MODE, BUT REMEMBER CHOICE
+    // Load dark mode preference - DEFAULT TO DARK MODE
     console.log('Loading saved preference...');
     console.log('Local storage value:', localStorage.getItem('darkMode'));
 
     // Check if there's a saved preference
     if (localStorage.getItem('darkMode') === 'light') {
-        document.body.classList.remove('dark');
+        // User previously chose light mode
+        updateDarkMode(false);
         console.log('Setting to light mode based on storage');
     } else if (localStorage.getItem('darkMode') === 'dark') {
-        document.body.classList.add('dark');
+        // User previously chose dark mode
+        updateDarkMode(true);
         console.log('Setting to dark mode based on storage');
     } else {
-        // First time visiting - default to dark
-        document.body.classList.add('dark');
-        localStorage.setItem('darkMode', 'dark');
+        // First time visiting - DEFAULT TO DARK MODE
+        updateDarkMode(true);
+        localStorage.setItem('darkMode', 'dark'); // Save the default
         console.log('First visit - defaulting to dark');
     }
     
     console.log('Final body dark class?', document.body.classList.contains('dark'));
+    console.log('Final HTML dark class?', document.documentElement.classList.contains('dark'));
     console.log('=== END DIAGNOSIS ===\n');
 
     // Load last chapter
