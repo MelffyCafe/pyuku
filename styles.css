@@ -1,0 +1,336 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Font Declarations */
+@font-face {
+    font-family: 'La Belle Aurore';
+    src: url('fonts/Elsie,La_Belle_Aurore,Lora,Syne_Mono/La_Belle_Aurore/LaBelleAurore-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Elsie';
+    src: url('fonts/Elsie,La_Belle_Aurore,Lora,Syne_Mono/Elsie/Elsie-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Elsie';
+    src: url('fonts/Elsie,La_Belle_Aurore,Lora,Syne_Mono/Elsie/Elsie-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Lora';
+    src: url('fonts/Elsie,La_Belle_Aurore,Lora,Syne_Mono/Lora/Lora-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Lora';
+    src: url('fonts/Elsie,La_Belle_Aurore,Lora,Syne_Mono/Lora/Lora-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Syne Mono';
+    src: url('fonts/Elsie,La_Belle_Aurore,Lora,Syne_Mono/Syne_Mono/SyneMono-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+:root {
+    /* light mode - cool blues */
+    --bg-layer: rgba(235, 240, 248, 0.85);
+    --text-main: #1a2a3a;
+    --text-soft: #2c3e4f;
+    --accent-line: #8ca2bb;
+    --toc-bg: rgba(210, 220, 235, 0.82);
+    --toc-hover: #c0cada;
+    --toc-active: #a5b5d0;
+    --shadow: 0 8px 20px rgba(0,0,0,0.08);
+    --blur-amount: 6px;
+    --bg-image: url('assets/lightmodetree.jpg');
+}
+
+body.dark {
+    /* dark mode - deep ocean blues */
+    --bg-layer: rgba(24, 29, 45, 0.88);
+    --text-main: #e0e9f5;
+    --text-soft: #b5c8dd;
+    --accent-line: #8ca2bb;
+    --toc-bg: rgba(40, 45, 60, 0.8);
+    --toc-hover: #3f4e5f;
+    --toc-active: #6b7f94;
+    --shadow: 0 8px 20px rgba(0,0,0,0.6);
+    --bg-image: url('assets/darkmodeland.jpg');
+}
+
+body {
+    font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem;
+    color: var(--text-main);
+    transition: background-image 0.2s ease, color 0.2s;
+}
+
+/* FIX SCROLLING ISSUE */
+html, body {
+    overflow: visible !important;
+    overflow-y: scroll !important;
+    height: auto !important;
+    min-height: 100% !important;
+}
+
+.top-button-bar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#darkmode-toggle {
+    background: var(--toc-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--accent-line);
+    color: var(--text-main);
+    padding: 0.6rem 1.4rem;
+    border-radius: 60px;
+    font-size: 1rem;
+    font-family: 'Lora', serif;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: 0.15s;
+}
+
+#darkmode-toggle:hover {
+    background: var(--toc-hover);
+}
+
+#jumpToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--toc-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--accent-line);
+    color: var(--text-main);
+    padding: 0.6rem 1.4rem;  /* MATCHED to dark mode button */
+    border-radius: 60px;
+    font-size: 1rem;
+    font-family: 'Lora', serif;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    transition: 0.15s;
+    opacity: 0.8;
+}
+
+#jumpToTop:hover {
+    background: var(--toc-hover);
+    opacity: 1;
+}
+
+#jumpToTop.hidden {
+    display: none;
+}
+
+.doc-column {
+    max-width: 760px;
+    width: 100%;
+    margin: 20px auto 20px;
+    background-color: var(--bg-layer);
+    backdrop-filter: blur(var(--blur-amount));
+    padding: 2.5rem 3rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+@media (max-width: 600px) {
+    .doc-column {
+        padding: 1.8rem 1.2rem;
+        margin-top: 20px;
+    }
+    
+    #darkmode-toggle {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    #jumpToTop {
+        padding: 0.5rem 1rem;  /* MATCHED to dark mode button */
+        font-size: 0.9rem;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+.story-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--accent-line);
+    padding-bottom: 1.2rem;
+}
+
+.story-title {
+    font-family: 'La Belle Aurore', cursive;
+    font-size: 2.4rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.story-summary {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--text-soft);
+    margin: 0.8rem 0 0.4rem;
+}
+
+.word-count {
+    font-size: 1rem;
+    color: var(--text-soft);
+}
+
+.toc-container {
+    background-color: var(--toc-bg);
+    border-radius: 28px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2.8rem;
+}
+
+.toc-container h2 {
+    font-family: 'Elsie', serif;
+    font-weight: 400;
+    font-size: 1.6rem;
+    border-left: 5px solid var(--accent-line);
+    padding-left: 1rem;
+    margin-bottom: 1.2rem;
+    text-transform: capitalize;
+}
+
+.chapter-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem 1.5rem;
+}
+
+.chapter-link {
+    font-family: 'Elsie', serif;
+    font-weight: 400;
+    font-size: 1.2rem;
+    padding: 0.3rem 1rem;
+    background: transparent;
+    border-radius: 40px;
+    cursor: pointer;
+    border: none;
+    text-align: left;
+    color: var(--text-main);
+    width: 100%;
+    text-transform: capitalize;
+    transition: background 0.15s;
+}
+
+.chapter-link:hover {
+    background: var(--toc-hover);
+}
+
+.chapter-link.active {
+    background: var(--toc-active);
+    font-weight: 600;
+    border-left: 4px solid #4a5a6b;
+    color: #0a1a2a;
+}
+
+body.dark .chapter-link.active {
+    background: #6b7f94;
+    border-left: 4px solid #4a5a6b;
+    color: #ffffff;
+}
+
+body.dark .chapter-link:hover {
+    background: #3f4e5f;
+}
+
+.chapter-view {
+    margin: 1.8rem 0;
+}
+
+.chapter-title {
+    font-family: 'Elsie', serif;
+    font-weight: 400;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px dashed var(--accent-line);
+    padding-bottom: 0.5rem;
+    text-transform: capitalize;
+}
+
+.chapter-content p {
+    font-family: 'Lora', serif;
+    text-indent: 1.8em;
+    margin: 0 0 0.5em 0;
+    line-height: 1.7;
+}
+
+/* Updated chapter nav with a little bottom padding */
+.chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-bottom: 1rem;  /* Just a little space */
+}
+
+@media (max-width: 600px) {
+    .chapter-nav {
+        padding-bottom: 1.5rem;  /* Slightly more on mobile */
+    }
+}
+
+.chapter-nav button {
+    font-family: 'Lora', serif;
+    background: var(--toc-bg);
+    border: 1px solid var(--accent-line);
+    padding: 0.4rem 1.2rem;
+    border-radius: 30px;
+    color: var(--text-main);
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.chapter-nav button:hover {
+    background: var(--toc-hover);
+}
+
+.chapter-nav button:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.chapter-nav span {
+    font-family: 'Lora', serif;
+    text-transform: capitalize;
+}
+
+/* If you want to use Syne Mono somewhere */
+.mono-text {
+    font-family: 'Syne Mono', monospace;
+}
