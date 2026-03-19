@@ -205,12 +205,27 @@ if (jumpBtn) {
 }
 });
 
-// iOS viewport height fix
+// iOS viewport height fix - MORE AGGRESSIVE
 function setVh() {
     let vh = window.innerHeight * 0.01;
+    let height = window.innerHeight;
+    
     document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--window-height', `${height}px`);
+    
+    // Also set body height directly for iOS
+    if (document.body) {
+        document.body.style.minHeight = height + 'px';
+    }
 }
 
+// Initial set
 setVh();
+
+// Update more frequently
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
+window.addEventListener('scroll', function() {
+    // Sometimes iOS needs a nudge on scroll
+    setTimeout(setVh, 50);
+});
