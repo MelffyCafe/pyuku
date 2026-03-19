@@ -80,8 +80,10 @@ html {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    /* Change from fixed to scroll for iOS */
+    /* Critical: Use scroll instead of fixed for iOS */
     background-attachment: scroll;
+    /* Ensure proper rendering */
+    -webkit-text-size-adjust: 100%;
 }
 
 html.dark {
@@ -101,7 +103,7 @@ html.dark {
 body {
     font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
     background: transparent;
-    /* Fix for iOS bottom cut-off */
+    /* Remove all complex height calculations */
     min-height: 100%;
     display: flex;
     flex-direction: column;
@@ -110,24 +112,30 @@ body {
     color: var(--text-main);
     transition: color 0.2s ease;
     margin: 0;
-    /* Let body scroll naturally */
-    overflow-y: visible;
+    /* Ensure proper scrolling */
+    overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    /* Flexbox fixes for Safari */
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-align-items: center;
 }
 
-/* iOS-specific fixes */
+/* iOS-specific viewport fixes */
 @supports (-webkit-touch-callout: none) {
-    body {
-        /* This is the key fix for iOS bottom cut-off */
-        height: -webkit-fill-available;
-        min-height: -webkit-fill-available;
-    }
-    
     html {
         height: -webkit-fill-available;
         /* Fix for background on iOS */
         background-attachment: scroll;
+    }
+    
+    body {
+        /* The key fix for iOS bottom cut-off */
+        height: -webkit-fill-available;
+        min-height: -webkit-fill-available;
+        /* Use padding instead of height for content */
+        padding: 0 1rem 1rem 1rem;
     }
 }
 
@@ -188,22 +196,26 @@ body {
     display: none;
 }
 
+/* Ensure the main container doesn't cause issues */
 .doc-column {
     max-width: 760px;
     width: 100%;
-    margin: 80px auto 20px;  /* 80px top margin pushes content below the button */
+    margin: 80px auto 20px;
     background-color: var(--bg-layer);
     backdrop-filter: blur(var(--blur-amount));
     -webkit-backdrop-filter: blur(var(--blur-amount));
     padding: 2.5rem 3rem;
     border-radius: 20px;
     box-shadow: var(--shadow);
+    /* Ensure it doesn't overflow */
+    box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
     .doc-column {
         padding: 1.8rem 1.2rem;
-        margin-top: 70px;  /* Slightly less on mobile */
+        margin-top: 70px;
+        margin-bottom: 30px; /* Add bottom margin on mobile */
     }
     
     #darkmode-toggle {
@@ -216,6 +228,11 @@ body {
         font-size: 0.9rem;
         bottom: 20px;
         right: 20px;
+    }
+    
+    /* Add extra bottom padding on mobile */
+    body {
+        padding-bottom: 20px;
     }
 }
 
@@ -328,16 +345,17 @@ body.dark .chapter-link:hover {
     line-height: 1.7;
 }
 
+/* Ensure the chapter nav doesn't get cut off */
 .chapter-nav {
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
-    padding-bottom: 1rem;
+    padding-bottom: 2rem; /* Increased from 1rem */
 }
 
 @media (max-width: 600px) {
     .chapter-nav {
-        padding-bottom: 1.5rem;
+        padding-bottom: 2.5rem; /* Increased from 1.5rem */
     }
 }
 

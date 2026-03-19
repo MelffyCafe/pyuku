@@ -71,7 +71,57 @@ function updateDarkMode(isDark) {
     // Ensure background properties are set
     document.documentElement.style.backgroundSize = 'cover';
     document.documentElement.style.backgroundPosition = 'center';
-    document.documentElement.style.backgroundAttachment = 'fixed';
+    document.documentElement.style.backgroundAttachment = 'scroll'; // Changed from fixed to scroll
+}
+
+// iOS viewport height fix - COMPREHENSIVE
+function setVh() {
+    // Get the actual viewport height
+    const vh = window.innerHeight * 0.01;
+    const height = window.innerHeight;
+    const width = window.innerWidth;
+    
+    // Set CSS variables
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--window-height', `${height}px`);
+    document.documentElement.style.setProperty('--window-width', `${width}px`);
+    
+    // For iOS specifically, set body height
+    if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        document.body.style.minHeight = height + 'px';
+        
+        // Also ensure html takes full height
+        document.documentElement.style.height = height + 'px';
+        
+        // Log for debugging
+        console.log('iOS height set to:', height);
+    }
+}
+
+// Call setVh on various events
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+window.addEventListener('scroll', function() {
+    // Debounced scroll handler
+    if (!window.requestAnimationFrame) {
+        setTimeout(setVh, 100);
+    } else {
+        window.requestAnimationFrame(setVh);
+    }
+});
+
+// Additional fix for iOS keyboard showing/hiding
+if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+    window.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            setTimeout(setVh, 300);
+        }
+    });
+    
+    window.addEventListener('focusout', function() {
+        setTimeout(setVh, 300);
+    });
 }
 
 // Wait for page to load before setting up
@@ -90,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isLight = document.body.classList.contains('light');
             
             // Update mode - if light class exists, go to dark; if not, go to light
-            updateDarkMode(isLight); // isLight = true means go to dark, false means go to light
+            updateDarkMode(isLight);
             
             console.log('After toggle - Light class?', document.body.classList.contains('light'));
             
@@ -133,99 +183,64 @@ document.addEventListener('DOMContentLoaded', function() {
         window.showChapter(1);
     }
 
-// JUMP TO TOP - IMPROVED FOR iOS WITH URL BAR FIX
-const jumpBtn = document.getElementById('jumpToTop');
-const tocContainer = document.querySelector('.toc-container');
-let lastScrollY = window.scrollY;
-let ticking = false;
+    // JUMP TO TOP - IMPROVED FOR iOS
+    const jumpBtn = document.getElementById('jumpToTop');
+    const tocContainer = document.querySelector('.toc-container');
+    let lastScrollY = window.scrollY;
+    let ticking = false;
 
-if (jumpBtn) {
-    function checkScroll() {
-        const currentScrollY = window.scrollY;
+    if (jumpBtn) {
+        function checkScroll() {
+            const currentScrollY = window.scrollY;
+            
+            if (tocContainer) {
+                const tocRect = tocContainer.getBoundingClientRect();
+                
+                // Use a more generous threshold for iOS
+                const isPastTOC = tocRect.bottom < 100;
+                const hasScrolledSignificantly = currentScrollY > 150;
+                
+                if (isPastTOC || hasScrolledSignificantly) {
+                    jumpBtn.classList.remove('hidden');
+                } else {
+                    jumpBtn.classList.add('hidden');
+                }
+                
+                lastScrollY = currentScrollY;
+            } else {
+                if (window.scrollY > 150) {
+                    jumpBtn.classList.remove('hidden');
+                } else {
+                    jumpBtn.classList.add('hidden');
+                }
+            }
+            ticking = false;
+        }
         
-        if (tocContainer) {
-            const tocRect = tocContainer.getBoundingClientRect();
-            
-            // On iOS, when URL bar collapses, scrollY changes
-            // Use multiple conditions to catch it
-            const isPastTOC = tocRect.bottom < 50; // Small threshold for URL bar
-            const hasScrolledSignificantly = currentScrollY > 200;
-            const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
-            
-            // Show button if past TOC OR scrolled down significantly
-            if (isPastTOC || (hasScrolledSignificantly && scrollDirection === 'down')) {
-                jumpBtn.classList.remove('hidden');
-            } else {
-                jumpBtn.classList.add('hidden');
+        // Multiple event listeners for iOS
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(checkScroll);
+                ticking = true;
             }
-            
-            lastScrollY = currentScrollY;
-        } else {
-            // Fallback
-            if (window.scrollY > 200) {
-                jumpBtn.classList.remove('hidden');
-            } else {
-                jumpBtn.classList.add('hidden');
-            }
-        }
-        ticking = false;
-    }
-    
-    // Scroll event with requestAnimationFrame
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(checkScroll);
-            ticking = true;
-        }
-    });
-    
-    // Also check on touch end for iOS
-    window.addEventListener('touchend', function() {
-        checkScroll();
-    });
-    
-    // Check on resize (when URL bar collapses/expands)
-    window.addEventListener('resize', function() {
-        checkScroll();
-    });
-    
-    // Periodic check for iOS
-    setInterval(checkScroll, 100);
-    
-    // Initial check
-    checkScroll();
-    
-    // Click handler
-    jumpBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
         });
-    });
-}
-});
-
-// iOS viewport height fix - MORE AGGRESSIVE
-function setVh() {
-    let vh = window.innerHeight * 0.01;
-    let height = window.innerHeight;
-    
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    document.documentElement.style.setProperty('--window-height', `${height}px`);
-    
-    // Also set body height directly for iOS
-    if (document.body) {
-        document.body.style.minHeight = height + 'px';
+        
+        window.addEventListener('touchend', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        
+        // Periodic check for iOS
+        setInterval(checkScroll, 200);
+        
+        // Initial check with delay to ensure DOM is ready
+        setTimeout(checkScroll, 100);
+        checkScroll();
+        
+        // Click handler
+        jumpBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     }
-}
-
-// Initial set
-setVh();
-
-// Update more frequently
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
-window.addEventListener('scroll', function() {
-    // Sometimes iOS needs a nudge on scroll
-    setTimeout(setVh, 50);
 });
