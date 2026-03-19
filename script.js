@@ -48,15 +48,30 @@ window.changeChapter = function(direction) {
     }
 };
 
-// Function to update dark mode on html element
+// Function to update dark/light mode
 function updateDarkMode(isDark) {
     if (isDark) {
-        document.documentElement.classList.add('dark');
-        document.body.classList.add('dark');
+        // Dark mode - remove light class
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+        
+        // Set dark background
+        document.documentElement.style.backgroundColor = '#0a0e1a';
+        document.documentElement.style.backgroundImage = "url('assets/darkmodeland.jpg')";
     } else {
-        document.documentElement.classList.remove('dark');
-        document.body.classList.remove('dark');
+        // Light mode - add light class
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+        
+        // Set light background
+        document.documentElement.style.backgroundColor = '#e0e6f0';
+        document.documentElement.style.backgroundImage = "url('assets/lightmodetree.jpg')";
     }
+    
+    // Ensure background properties are set
+    document.documentElement.style.backgroundSize = 'cover';
+    document.documentElement.style.backgroundPosition = 'center';
+    document.documentElement.style.backgroundAttachment = 'fixed';
 }
 
 // Wait for page to load before setting up
@@ -71,14 +86,15 @@ document.addEventListener('DOMContentLoaded', function() {
         darkModeBtn.addEventListener('click', function() {
             console.log('=== BUTTON CLICKED ===');
             
-            // Toggle both html and body classes
-            const isDark = !document.body.classList.contains('dark');
-            updateDarkMode(isDark);
+            // Check if light class exists (meaning we're in light mode)
+            const isLight = document.body.classList.contains('light');
             
-            console.log('After toggle - Body has dark class?', document.body.classList.contains('dark'));
-            console.log('After toggle - HTML has dark class?', document.documentElement.classList.contains('dark'));
+            // Update mode - if light class exists, go to dark; if not, go to light
+            updateDarkMode(isLight); // isLight = true means go to dark, false means go to light
             
-            localStorage.setItem('darkMode', isDark ? 'dark' : 'light');
+            console.log('After toggle - Light class?', document.body.classList.contains('light'));
+            
+            localStorage.setItem('darkMode', document.body.classList.contains('light') ? 'light' : 'dark');
             console.log('Local storage saved as:', localStorage.getItem('darkMode'));
         });
     } else {
@@ -90,23 +106,23 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Local storage value:', localStorage.getItem('darkMode'));
 
     // Check if there's a saved preference
-    if (localStorage.getItem('darkMode') === 'light') {
+    const savedMode = localStorage.getItem('darkMode');
+    
+    if (savedMode === 'light') {
         // User previously chose light mode
         updateDarkMode(false);
         console.log('Setting to light mode based on storage');
-    } else if (localStorage.getItem('darkMode') === 'dark') {
-        // User previously chose dark mode
-        updateDarkMode(true);
-        console.log('Setting to dark mode based on storage');
     } else {
-        // First time visiting - DEFAULT TO DARK MODE
+        // Default to dark mode (includes first-time visitors and those with 'dark' saved)
         updateDarkMode(true);
-        localStorage.setItem('darkMode', 'dark'); // Save the default
-        console.log('First visit - defaulting to dark');
+        // If first time, save the default
+        if (!savedMode) {
+            localStorage.setItem('darkMode', 'dark');
+        }
+        console.log('Setting to dark mode');
     }
     
-    console.log('Final body dark class?', document.body.classList.contains('dark'));
-    console.log('Final HTML dark class?', document.documentElement.classList.contains('dark'));
+    console.log('Body has light class?', document.body.classList.contains('light'));
     console.log('=== END DIAGNOSIS ===\n');
 
     // Load last chapter

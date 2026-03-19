@@ -48,21 +48,7 @@
 }
 
 :root {
-    /* light mode - cool blues */
-    --bg-layer: rgba(235, 240, 248, 0.85);
-    --text-main: #1a2a3a;
-    --text-soft: #2c3e4f;
-    --accent-line: #8ca2bb;
-    --toc-bg: rgba(210, 220, 235, 0.82);
-    --toc-hover: #c0cada;
-    --toc-active: #a5b5d0;
-    --shadow: 0 8px 20px rgba(0,0,0,0.08);
-    --blur-amount: 6px;
-    --vh: 100%;
-}
-
-body.dark {
-    /* dark mode - deep ocean blues */
+    /* Default to DARK MODE - deep ocean blues */
     --bg-layer: rgba(24, 29, 45, 0.88);
     --text-main: #e0e9f5;
     --text-soft: #b5c8dd;
@@ -71,6 +57,20 @@ body.dark {
     --toc-hover: #3f4e5f;
     --toc-active: #6b7f94;
     --shadow: 0 8px 20px rgba(0,0,0,0.6);
+    --blur-amount: 6px;
+    --vh: 100%;
+}
+
+/* Light mode overrides - applied when body has 'light' class */
+body.light {
+    --bg-layer: rgba(235, 240, 248, 0.85);
+    --text-main: #1a2a3a;
+    --text-soft: #2c3e4f;
+    --accent-line: #8ca2bb;
+    --toc-bg: rgba(210, 220, 235, 0.82);
+    --toc-hover: #c0cada;
+    --toc-active: #a5b5d0;
+    --shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
 /* iOS viewport fixes */
@@ -177,7 +177,7 @@ body {
 .doc-column {
     max-width: 760px;
     width: 100%;
-    margin: 20px auto 20px;
+    margin: 80px auto 20px;  /* 80px top margin pushes content below the button */
     background-color: var(--bg-layer);
     backdrop-filter: blur(var(--blur-amount));
     -webkit-backdrop-filter: blur(var(--blur-amount));
@@ -189,7 +189,7 @@ body {
 @media (max-width: 600px) {
     .doc-column {
         padding: 1.8rem 1.2rem;
-        margin-top: 20px;
+        margin-top: 70px;  /* Slightly less on mobile */
     }
     
     #darkmode-toggle {
