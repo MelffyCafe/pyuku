@@ -13,12 +13,11 @@ window.showChapter = function(num) {
     let selectedChapter = document.getElementById('chapter' + num);
     if (selectedChapter) selectedChapter.style.display = 'block';
     
-    // Update active class in TOC
-    const chapterWords = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
-    const targetText = 'Chapter ' + chapterWords[num-1];
-    
+    // Update active class in TOC - WORKS WITH YOUR BUTTON ORDER
     document.querySelectorAll('.chapter-link').forEach((btn) => {
-        if (btn.textContent.trim() === targetText) {
+        // Extract chapter number from the onclick attribute
+        const onclickAttr = btn.getAttribute('onclick');
+        if (onclickAttr && onclickAttr.includes(`showChapter(${num})`)) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
@@ -74,6 +73,36 @@ function updateDarkMode(isDark) {
     document.documentElement.style.backgroundAttachment = 'scroll';
 }
 
+// iOS Safari bottom bar fix - improved
+function fixSafariBottomBar() {
+    // Check if Safari on iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+        // Get the actual visible viewport height
+        const visibleHeight = window.innerHeight;
+        
+        // Apply to body and html
+        document.body.style.minHeight = visibleHeight + 'px';
+        document.documentElement.style.minHeight = visibleHeight + 'px';
+        
+        // Fix for jumpToTop button
+        const jumpBtn = document.getElementById('jumpToTop');
+        if (jumpBtn && !jumpBtn.classList.contains('hidden')) {
+            // Ensure button is above bottom bar
+            jumpBtn.style.bottom = `max(30px, ${window.visualViewport ? window.visualViewport.height - window.innerHeight + 30 : 30}px)`;
+        }
+        
+        // Add extra padding to chapter-nav on iOS
+        const chapterNav = document.querySelector('.chapter-nav');
+        if (chapterNav) {
+            const bottomBarHeight = window.visualViewport ? 
+                window.visualViewport.height - window.innerHeight : 0;
+            chapterNav.style.paddingBottom = `calc(2rem + ${bottomBarHeight}px)`;
+        }
+    }
+}
+
 // iOS viewport height fix - SIMPLIFIED
 function setVh() {
     // For iOS specifically, ensure body takes full height
@@ -81,6 +110,9 @@ function setVh() {
         const height = window.innerHeight;
         document.body.style.minHeight = height + 'px';
         document.documentElement.style.height = height + 'px';
+        
+        // Additional fix for bottom bar
+        fixSafariBottomBar();
     }
 }
 
@@ -88,6 +120,15 @@ function setVh() {
 setVh();
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
+
+// Use visualViewport API if available (more accurate for Safari)
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function() {
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+            fixSafariBottomBar();
+        }
+    });
+}
 
 // Wait for page to load before setting up
 document.addEventListener('DOMContentLoaded', function() {
@@ -208,4 +249,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // Apply Safari bottom bar fix after load
+    setTimeout(fixSafariBottomBar, 300);
+});
+
+// Run fix again after full page load
+window.addEventListener('load', function() {
+    fixSafariBottomBar();
+    setVh();
 });

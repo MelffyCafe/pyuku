@@ -59,6 +59,7 @@
     --shadow: 0 8px 20px rgba(0,0,0,0.6);
     --blur-amount: 6px;
     --vh: 100%;
+    --safe-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* Light mode overrides - applied when body has 'light' class */
@@ -109,6 +110,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 0 1rem;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
     color: var(--text-main);
     transition: color 0.2s ease;
     margin: 0;
@@ -125,22 +127,24 @@ body {
 /* iOS-specific viewport fixes - PROVEN FIX */
 @supports (-webkit-touch-callout: none) {
     html {
-        height: 100dvh;
+        height: -webkit-fill-available;
         overflow: hidden;
         background-attachment: scroll;
     }
     
     body {
-        height: 100dvh;
+        min-height: -webkit-fill-available;
+        height: -webkit-fill-available;
         overscroll-behavior: contain;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
-        padding: 0 1rem 1rem 1rem;
+        padding: 0 1rem;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
         /* Add safe area padding if needed */
         padding-bottom: env(safe-area-inset-bottom, 1rem);
     }
     
-    /* Ensure fixed elements stay put */
+    /* Ensure fixed elements stay put with safe areas */
     .top-button-bar {
         position: fixed;
         top: max(20px, env(safe-area-inset-top));
@@ -148,15 +152,15 @@ body {
     }
     
     #jumpToTop {
-        bottom: max(30px, env(safe-area-inset-bottom));
+        bottom: max(30px, env(safe-area-inset-bottom, 30px));
         right: max(30px, env(safe-area-inset-right));
     }
 }
 
 .top-button-bar {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: max(20px, env(safe-area-inset-top, 20px));
+    right: max(20px, env(safe-area-inset-right, 20px));
     z-index: 1000;
     display: flex;
     justify-content: flex-end;
@@ -183,8 +187,8 @@ body {
 
 #jumpToTop {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: max(30px, env(safe-area-inset-bottom, 30px));
+    right: max(30px, env(safe-area-inset-right, 30px));
     background: var(--toc-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -219,6 +223,7 @@ body {
     backdrop-filter: blur(var(--blur-amount));
     -webkit-backdrop-filter: blur(var(--blur-amount));
     padding: 2.5rem 3rem;
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0));
     border-radius: 20px;
     box-shadow: var(--shadow);
     /* Ensure it doesn't overflow */
@@ -228,8 +233,9 @@ body {
 @media (max-width: 600px) {
     .doc-column {
         padding: 1.8rem 1.2rem;
+        padding-bottom: calc(1.8rem + env(safe-area-inset-bottom, 0));
         margin-top: 70px;
-        margin-bottom: 30px; /* Add bottom margin on mobile */
+        margin-bottom: calc(30px + env(safe-area-inset-bottom, 0));
     }
     
     #darkmode-toggle {
@@ -240,13 +246,13 @@ body {
     #jumpToTop {
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
-        bottom: 20px;
-        right: 20px;
+        bottom: max(20px, env(safe-area-inset-bottom, 20px));
+        right: max(20px, env(safe-area-inset-right, 20px));
     }
     
     /* Add extra bottom padding on mobile */
     body {
-        padding-bottom: 20px;
+        padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
     }
 }
 
@@ -364,12 +370,12 @@ body.dark .chapter-link:hover {
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
-    padding-bottom: 2rem; /* Increased from 1rem */
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0));
 }
 
 @media (max-width: 600px) {
     .chapter-nav {
-        padding-bottom: 2.5rem; /* Increased from 1.5rem */
+        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0));
     }
 }
 
