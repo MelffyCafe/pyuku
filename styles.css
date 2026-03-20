@@ -86,6 +86,7 @@ html {
 @media (max-width: 600px) {
     html {
         height: 100%;
+        scroll-padding-top: 20px;
     }
     
     body {
@@ -532,7 +533,7 @@ margin: 0;
     font-weight: 400;
     font-size: 2rem;
     margin-bottom: 1rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
     border-bottom: 1px dashed var(--accent-line);
     padding-bottom: 0.5rem;
     text-transform: capitalize;
@@ -542,14 +543,17 @@ margin: 0;
 @media (max-width: 600px) {
     .chapter-title {
         font-size: 1.5rem;
-        margin-bottom: 0.8rem;
+        margin-bottom: 1rem;
+        margin-top: 1rem;
         padding-bottom: 0.4rem;
     }
 }
 
 @media (max-width: 400px) {
     .chapter-title {
-        font-size: 1.3rem;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        margin-top: 1rem;
     }
 }
 
