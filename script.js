@@ -50,46 +50,39 @@ window.changeChapter = function(direction) {
 // Function to update dark/light mode
 function updateDarkMode(isDark) {
     if (isDark) {
-        document.documentElement.classList.remove('light');
+        // Dark mode
         document.body.classList.remove('light');
-        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
         
-        document.documentElement.style.backgroundColor = '#0a0e1a';
-        document.documentElement.style.backgroundImage = "url('assets/darkmodeland.jpg')";
-        
-        // Also set on body for Edge
+        // Update body background, not html
         document.body.style.backgroundImage = "url('assets/darkmodeland.jpg')";
     } else {
-        document.documentElement.classList.add('light');
+        // Light mode
         document.body.classList.add('light');
-        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
         
-        document.documentElement.style.backgroundColor = '#e0e6f0';
-        document.documentElement.style.backgroundImage = "url('assets/lightmodetree.jpg')";
-        
-        // Also set on body for Edge
+        // Update body background, not html
         document.body.style.backgroundImage = "url('assets/lightmodetree.jpg')";
     }
     
-    // Ensure background properties are set
-    const bgProps = {
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-    };
+    // Set background properties on body
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
     
-    Object.assign(document.documentElement.style, bgProps);
-    Object.assign(document.body.style, bgProps);
+    // Handle attachment based on browser
+    const isEdge = /edge\//i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
-    // Use fixed on desktop, scroll on mobile
-    if (window.innerWidth > 600) {
-        document.documentElement.style.backgroundAttachment = 'fixed';
-        document.body.style.backgroundAttachment = 'fixed';
-    } else {
-        document.documentElement.style.backgroundAttachment = 'scroll';
+    if (isEdge) {
         document.body.style.backgroundAttachment = 'scroll';
+    } else if (isIOS) {
+        document.body.style.backgroundAttachment = 'scroll';
+    } else {
+        document.body.style.backgroundAttachment = window.innerWidth > 600 ? 'fixed' : 'scroll';
     }
 }
+
 // iOS Safari bottom bar fix - improved
 function fixSafariBottomBar() {
     // Check if Safari on iOS
@@ -257,59 +250,28 @@ if (jumpBtn) {
     setTimeout(checkScroll, 100);
     checkScroll();
     
-    // FIXED CLICK HANDLER using scrollingElement
+    // FIXED CLICK HANDLER - REMOVED preventDefault()
     jumpBtn.addEventListener('click', function(e) {
-        e.preventDefault();
+        // DO NOT use e.preventDefault() - let the anchor do its job
         
         // Hide button
         jumpBtn.classList.add('hidden');
         
-        // Use scrollingElement for maximum compatibility
-        if (document.scrollingElement) {
-            // Modern approach
-            document.scrollingElement.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        } else {
-            // Fallback
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
+        // Let the anchor href="#top-of-page" handle scrolling naturally
+        // No manual scroll code needed
         
-        return false;
+        return true; // Allow default behavior
     });
     
-    // Touch event for mobile
+    // FIXED TOUCH EVENT - REMOVED preventDefault()
     jumpBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+        // DO NOT use e.preventDefault() - let the anchor do its job
         
         // Hide button
         jumpBtn.classList.add('hidden');
         
-        // Immediate scroll for mobile
-        if (document.scrollingElement) {
-            document.scrollingElement.scrollTop = 0;
-            // Also try smooth scroll
-            try {
-                document.scrollingElement.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            } catch (e) {
-                // Fallback if smooth scroll fails
-                document.scrollingElement.scrollTop = 0;
-            }
-        } else {
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-        }
-        
-        return false;
-    }, { passive: false });
+        return true; // Allow default behavior
+    }, { passive: true }); // Changed to passive: true
 }
     
     // Apply Safari bottom bar fix after load
