@@ -189,29 +189,25 @@ document.addEventListener('DOMContentLoaded', function() {
         window.showChapter(1);
     }
 
-    // ============= JUMP TO TOP - COMPLETELY REWRITTEN FOR MOBILE SAFARI =============
+    // ============= JUMP TO TOP - REPLACED WITH ANCHOR VERSION =============
     const jumpBtn = document.getElementById('jumpToTop');
     const tocContainer = document.querySelector('.toc-container');
+    let ticking = false;
 
     if (jumpBtn) {
         function checkScroll() {
-            // Get scroll position (works on all browsers)
-            const scrollTop = window.pageYOffset || 
-                             document.documentElement.scrollTop || 
-                             document.body.scrollTop || 
-                             0;
+            // Use scrollingElement for better mobile compatibility
+            const scrollTop = document.scrollingElement ? document.scrollingElement.scrollTop : window.scrollY;
             
             if (tocContainer) {
                 const tocRect = tocContainer.getBoundingClientRect();
-                const isPastTOC = tocRect.bottom < 50;
                 
-                if (isPastTOC || scrollTop > 150) {
+                // Use a more generous threshold for iOS
+                const isPastTOC = tocRect.bottom < 100;
+                const hasScrolledSignificantly = scrollTop > 150;
+                
+                if (isPastTOC || hasScrolledSignificantly) {
                     jumpBtn.classList.remove('hidden');
-                    // Update button position for bottom bar
-                    if (window.visualViewport) {
-                        const bottomBarHeight = window.visualViewport.height - window.innerHeight;
-                        jumpBtn.style.bottom = `max(30px, ${bottomBarHeight + 30}px)`;
-                    }
                 } else {
                     jumpBtn.classList.add('hidden');
                 }
@@ -222,66 +218,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     jumpBtn.classList.add('hidden');
                 }
             }
+            ticking = false;
         }
         
-        // SIMPLE SCROLL TO TOP FUNCTION THAT WORKS ON SAFARI
-        function scrollToTop() {
-            // Hide button
-            jumpBtn.classList.add('hidden');
-            
-            // METHOD 1: Simple instant scroll (always works)
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-            
-            // METHOD 2: Try smooth scroll (may not work on Safari, but that's okay)
-            try {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            } catch (e) {
-                // Ignore errors, we already did instant scroll
-            }
-            
-            return false;
-        }
-        
-        // CLICK EVENT (works on all browsers)
-        jumpBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            scrollToTop();
-            return false;
-        });
-        
-        // TOUCH EVENT for mobile
-        jumpBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            scrollToTop();
-            return false;
-        }, { passive: false });
-        
-        // Scroll monitoring
-        let ticking = false;
+        // Multiple event listeners for iOS
         window.addEventListener('scroll', function() {
             if (!ticking) {
-                window.requestAnimationFrame(function() {
-                    checkScroll();
-                    ticking = false;
-                });
+                window.requestAnimationFrame(checkScroll);
                 ticking = true;
             }
         });
         
-        // Additional events
         window.addEventListener('touchend', checkScroll);
         window.addEventListener('resize', checkScroll);
         
-        // Periodic check
+        // Periodic check for iOS
         setInterval(checkScroll, 200);
         
-        // Initial check
+        // Initial check with delay to ensure DOM is ready
         setTimeout(checkScroll, 100);
         checkScroll();
+        
+        // SIMPLE CLICK HANDLER - Let the anchor do the work
+        // No JavaScript scroll code needed anymore!
+        jumpBtn.addEventListener('click', function(e) {
+            // The href="#top-of-page" will handle scrolling naturally
+            // We just need to make sure the button hides
+            setTimeout(function() {
+                jumpBtn.classList.add('hidden');
+            }, 100);
+        });
+        
+        // Touch event for mobile
+        jumpBtn.addEventListener('touchstart', function(e) {
+            // Let the anchor handle it
+            setTimeout(function() {
+                jumpBtn.classList.add('hidden');
+            }, 100);
+        }, { passive: false });
     }
     
     // Apply Safari bottom bar fix after load
