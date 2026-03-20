@@ -91,6 +91,13 @@ html.dark {
     background-image: url('assets/darkmodeland.jpg');
 }
 
+/* ADD THIS NEW SECTION for desktop fixed background */
+@media (min-width: 601px) {
+    html {
+        background-attachment: fixed;
+    }
+}
+
 @media (max-width: 600px) {
     html {
         height: 100%;
@@ -157,88 +164,110 @@ body {
     }
 }
 
-.top-button-bar {
-    position: fixed;
-    top: max(20px, env(safe-area-inset-top, 20px));
-    right: max(20px, env(safe-area-inset-right, 20px));
+/* Unified button styles - SLIGHTLY BIGGER VERSION */
+.top-button-bar,
+#jumpToTop {
+    /* Shared styles */
     z-index: 1000;
-    display: flex;
-    justify-content: flex-end;
 }
 
-#darkmode-toggle {
+#darkmode-toggle,
+#jumpToTop {
     background: var(--toc-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--accent-line);
     color: var(--text-main);
-    padding: 0.6rem 1.4rem;
-    border-radius: 60px;
-    font-size: 1rem;
+    font-size: 0.95rem; /* Increased from 0.85rem */
     font-family: 'Lora', serif;
     cursor: pointer;
     box-shadow: var(--shadow);
     transition: 0.15s;
+    letter-spacing: 0.3px;
+    
+    /* BIGGER BUTTON STYLES - increased padding */
+    padding: 0.45rem 1.2rem; /* Increased from 0.3rem 0.9rem */
+    border-radius: 30px;
+    line-height: 1.5; /* Slightly increased */
+    
+    /* Touch-friendly improvements */
+    min-width: 48px; /* Increased from 44px */
+    min-height: 40px; /* Increased from 32px */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    text-decoration: none;
+    font-weight: 400;
 }
 
-#darkmode-toggle:hover {
-    background: var(--toc-hover);
+/* Slightly different positioning for the buttons */
+.top-button-bar {
+    position: fixed;
+    top: max(20px, env(safe-area-inset-top, 20px));
+    right: max(20px, env(safe-area-inset-right, 20px));
+    display: flex;
+    justify-content: flex-end;
 }
 
 #jumpToTop {
     position: fixed;
     bottom: max(30px, env(safe-area-inset-bottom, 30px));
     right: max(30px, env(safe-area-inset-right, 30px));
-    background: var(--toc-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--accent-line);
-    color: var(--text-main);
-    padding: 0.6rem 1.4rem;
-    border-radius: 60px;
-    font-size: 1rem;
-    font-family: 'Lora', serif;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    z-index: 1000;
-    transition: 0.15s;
-    opacity: 0.8;
-    text-decoration: none;
-    
-    /* Touch-friendly improvements */
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    user-select: none;
+    opacity: 0.9;
 }
 
+/* Hover states */
+#darkmode-toggle:hover,
 #jumpToTop:hover {
     background: var(--toc-hover);
-    opacity: 1;
 }
 
-#jumpToTop:active {
+/* Active state */
+#jumpToTop:active,
+#darkmode-toggle:active {
     transform: scale(0.95);
     opacity: 1;
     background: var(--toc-hover);
 }
 
+/* Hidden state */
 #jumpToTop.hidden {
     display: none;
 }
 
+/* Mobile adjustments */
 @media (max-width: 600px) {
+    #darkmode-toggle,
     #jumpToTop {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        padding: 0.35rem 1rem; /* Increased from 0.25rem 0.8rem */
+        font-size: 0.9rem; /* Increased from 0.8rem */
+        min-height: 36px; /* Increased from 30px */
+        min-width: 44px;
+    }
+    
+    #jumpToTop {
         bottom: max(20px, env(safe-area-inset-bottom, 20px));
         right: max(20px, env(safe-area-inset-right, 20px));
-        min-width: 44px;
-        min-height: 44px;
+    }
+}
+
+/* Touch device hover removal */
+@media (hover: none) and (pointer: coarse) {
+    #darkmode-toggle:hover,
+    #jumpToTop:hover {
+        background: var(--toc-bg);
+        opacity: 0.9;
+        transform: none;
+    }
+    
+    #darkmode-toggle:active,
+    #jumpToTop:active {
+        transform: none;
+        background: var(--toc-bg);
+        opacity: 0.9;
     }
 }
 
@@ -250,8 +279,25 @@ body {
     background-color: var(--bg-layer);
     backdrop-filter: blur(var(--blur-amount));
     -webkit-backdrop-filter: blur(var(--blur-amount));
-    padding: 2.5rem 3rem;
-    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0));
+    
+    /* FIXED: Responsive padding that adapts to screen size */
+    padding: 2rem 2rem;
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0));
+    
+    /* Mobile: reduce padding significantly */
+    @media (max-width: 600px) {
+        padding: 1.25rem 1.25rem;
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0));
+        margin: 70px auto 15px;
+        border-radius: 16px;
+    }
+    
+    /* Extra small devices: even less padding */
+    @media (max-width: 400px) {
+        padding: 1rem 1rem;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+    }
+    
     border-radius: 20px;
     box-shadow: var(--shadow);
     /* Ensure it doesn't overflow */
@@ -260,9 +306,17 @@ body {
 
 .story-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem; /* Reduced from 2.5rem */
     border-bottom: 1px solid var(--accent-line);
-    padding-bottom: 1.2rem;
+    padding-bottom: 1rem; /* Reduced from 1.2rem */
+}
+
+/* Mobile adjustments for story header */
+@media (max-width: 600px) {
+    .story-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.8rem;
+    }
 }
 
 .story-title {
@@ -273,6 +327,19 @@ body {
     margin-bottom: 0.5rem;
 }
 
+/* Mobile title size */
+@media (max-width: 600px) {
+    .story-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .story-title {
+        font-size: 1.5rem;
+    }
+}
+
 .story-summary {
     font-family: 'Lora', serif;
     font-style: italic;
@@ -281,15 +348,44 @@ body {
     margin: 0.8rem 0 0.4rem;
 }
 
+/* Mobile summary size */
+@media (max-width: 600px) {
+    .story-summary {
+        font-size: 1rem;
+    }
+}
+
 .word-count {
     font-size: 1rem;
     color: var(--text-soft);
 }
 
+/* Mobile word count */
+@media (max-width: 600px) {
+    .word-count {
+        font-size: 0.9rem;
+    }
+}
+
 .toc-container {
     background-color: var(--toc-bg);
     border-radius: 28px;
+    
+    /* FIXED: Responsive padding for TOC */
     padding: 1.5rem 2rem;
+    
+    @media (max-width: 600px) {
+        padding: 1.25rem 1.25rem;
+        border-radius: 20px;
+        margin-bottom: 1.8rem; /* Reduced from 2.8rem */
+    }
+    
+    @media (max-width: 400px) {
+        padding: 1rem 1rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+    }
+    
     margin-bottom: 2.8rem;
 }
 
@@ -303,10 +399,32 @@ body {
     text-transform: capitalize;
 }
 
+/* Mobile TOC title */
+@media (max-width: 600px) {
+    .toc-container h2 {
+        font-size: 1.3rem;
+        padding-left: 0.75rem;
+        margin-bottom: 1rem;
+    }
+}
+
 .chapter-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.7rem 1.5rem;
+}
+
+/* Mobile chapter list */
+@media (max-width: 600px) {
+    .chapter-list {
+        gap: 0.5rem 1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .chapter-list {
+        gap: 0.4rem 0.8rem;
+    }
 }
 
 .chapter-link {
@@ -323,6 +441,21 @@ body {
     width: 100%;
     text-transform: capitalize;
     transition: background 0.15s;
+}
+
+/* Mobile chapter link */
+@media (max-width: 600px) {
+    .chapter-link {
+        font-size: 1rem;
+        padding: 0.25rem 0.8rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .chapter-link {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.6rem;
+    }
 }
 
 .chapter-link:hover {
@@ -350,6 +483,13 @@ body.dark .chapter-link:hover {
     margin: 1.8rem 0;
 }
 
+/* Mobile chapter view */
+@media (max-width: 600px) {
+    .chapter-view {
+        margin: 1.2rem 0;
+    }
+}
+
 .chapter-title {
     font-family: 'Elsie', serif;
     font-weight: 400;
@@ -360,11 +500,42 @@ body.dark .chapter-link:hover {
     text-transform: capitalize;
 }
 
+/* Mobile chapter title */
+@media (max-width: 600px) {
+    .chapter-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.4rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .chapter-title {
+        font-size: 1.3rem;
+    }
+}
+
 .chapter-content p {
     font-family: 'Lora', serif;
     text-indent: 1.8em;
     margin: 0 0 0.5em 0;
     line-height: 1.7;
+}
+
+/* Mobile paragraph spacing */
+@media (max-width: 600px) {
+    .chapter-content p {
+        text-indent: 1.5em;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .chapter-content p {
+        text-indent: 1.2em;
+        font-size: 0.9rem;
+    }
 }
 
 /* Ensure the chapter nav doesn't get cut off */
@@ -377,7 +548,8 @@ body.dark .chapter-link:hover {
 
 @media (max-width: 600px) {
     .chapter-nav {
-        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0));
+        margin-top: 1.5rem;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
     }
 }
 
@@ -392,6 +564,21 @@ body.dark .chapter-link:hover {
     text-transform: capitalize;
 }
 
+/* Mobile nav buttons */
+@media (max-width: 600px) {
+    .chapter-nav button {
+        padding: 0.3rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .chapter-nav button {
+        padding: 0.25rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
+
 .chapter-nav button:hover {
     background: var(--toc-hover);
 }
@@ -404,6 +591,13 @@ body.dark .chapter-link:hover {
 .chapter-nav span {
     font-family: 'Lora', serif;
     text-transform: capitalize;
+}
+
+/* Mobile nav indicator */
+@media (max-width: 600px) {
+    .chapter-nav span {
+        font-size: 0.9rem;
+    }
 }
 
 .mono-text {

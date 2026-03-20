@@ -70,7 +70,14 @@ function updateDarkMode(isDark) {
     // Ensure background properties are set
     document.documentElement.style.backgroundSize = 'cover';
     document.documentElement.style.backgroundPosition = 'center';
-    document.documentElement.style.backgroundAttachment = 'scroll';
+    document.documentElement.style.backgroundRepeat = 'no-repeat';
+    
+    // Use fixed on desktop, scroll on mobile
+    if (window.innerWidth > 600) {
+        document.documentElement.style.backgroundAttachment = 'fixed';
+    } else {
+        document.documentElement.style.backgroundAttachment = 'scroll';
+    }
 }
 
 // iOS Safari bottom bar fix - improved
@@ -240,28 +247,59 @@ if (jumpBtn) {
     setTimeout(checkScroll, 100);
     checkScroll();
     
-    // FIXED CLICK HANDLER - REMOVED preventDefault()
+    // FIXED CLICK HANDLER using scrollingElement
     jumpBtn.addEventListener('click', function(e) {
-        // DO NOT use e.preventDefault() - let the anchor do its job
+        e.preventDefault();
         
         // Hide button
         jumpBtn.classList.add('hidden');
         
-        // Let the anchor href="#top-of-page" handle scrolling naturally
-        // No manual scroll code needed
+        // Use scrollingElement for maximum compatibility
+        if (document.scrollingElement) {
+            // Modern approach
+            document.scrollingElement.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        } else {
+            // Fallback
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
         
-        return true; // Allow default behavior
+        return false;
     });
     
-    // FIXED TOUCH EVENT - REMOVED preventDefault()
+    // Touch event for mobile
     jumpBtn.addEventListener('touchstart', function(e) {
-        // DO NOT use e.preventDefault() - let the anchor do its job
+        e.preventDefault();
+        e.stopPropagation();
         
         // Hide button
         jumpBtn.classList.add('hidden');
         
-        return true; // Allow default behavior
-    }, { passive: true }); // Changed to passive: true
+        // Immediate scroll for mobile
+        if (document.scrollingElement) {
+            document.scrollingElement.scrollTop = 0;
+            // Also try smooth scroll
+            try {
+                document.scrollingElement.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            } catch (e) {
+                // Fallback if smooth scroll fails
+                document.scrollingElement.scrollTop = 0;
+            }
+        } else {
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+        
+        return false;
+    }, { passive: false });
 }
     
     // Apply Safari bottom bar fix after load
