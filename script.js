@@ -72,11 +72,28 @@ function updateDarkMode(isDark) {
     document.documentElement.style.backgroundAttachment = 'scroll';
 }
 
-// iOS Safari bottom bar fix - simplified
+// iOS Safari bottom bar fix - RESTORED WITH PROPER FIX
 function fixSafariBottomBar() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
     if (isIOS) {
+        // CRITICAL: Get the actual visible viewport height
+        const visibleHeight = window.innerHeight;
+        
+        // Apply to body and html
+        document.body.style.minHeight = visibleHeight + 'px';
+        document.documentElement.style.minHeight = visibleHeight + 'px';
+        
+        // CRITICAL: Fix for jumpToTop button position relative to bottom bar
+        const jumpBtn = document.getElementById('jumpToTop');
+        if (jumpBtn && !jumpBtn.classList.contains('hidden')) {
+            // Ensure button is above bottom bar
+            if (window.visualViewport) {
+                const bottomBarHeight = Math.max(0, window.visualViewport.height - window.innerHeight);
+                jumpBtn.style.bottom = `max(30px, ${bottomBarHeight + 30}px)`;
+            }
+        }
+        
         // Add extra padding to chapter-nav on iOS
         const chapterNav = document.querySelector('.chapter-nav');
         if (chapterNav && window.visualViewport) {
@@ -89,8 +106,9 @@ function fixSafariBottomBar() {
 // iOS viewport height fix
 function setVh() {
     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-        document.body.style.minHeight = window.innerHeight + 'px';
-        document.documentElement.style.minHeight = window.innerHeight + 'px';
+        const height = window.innerHeight;
+        document.body.style.minHeight = height + 'px';
+        document.documentElement.style.height = height + 'px';
         fixSafariBottomBar();
     }
 }
@@ -184,6 +202,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (isPastTOC || scrollY > 200) {
                     jumpBtn.classList.remove('hidden');
+                    // Update button position when visible
+                    if (window.visualViewport) {
+                        const bottomBarHeight = Math.max(0, window.visualViewport.height - window.innerHeight);
+                        jumpBtn.style.bottom = `max(30px, ${bottomBarHeight + 30}px)`;
+                    }
                 } else {
                     jumpBtn.classList.add('hidden');
                 }
@@ -212,6 +235,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
             }
+            
+            // Reset button position after scroll
+            setTimeout(fixSafariBottomBar, 300);
         }
         
         // Add event listeners
