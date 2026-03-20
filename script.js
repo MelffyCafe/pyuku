@@ -13,8 +13,9 @@ window.showChapter = function(num) {
     let selectedChapter = document.getElementById('chapter' + num);
     if (selectedChapter) selectedChapter.style.display = 'block';
     
-    // Update active class in TOC
+    // Update active class in TOC - WORKS WITH YOUR BUTTON ORDER
     document.querySelectorAll('.chapter-link').forEach((btn) => {
+        // Extract chapter number from the onclick attribute
         const onclickAttr = btn.getAttribute('onclick');
         if (onclickAttr && onclickAttr.includes(`showChapter(${num})`)) {
             btn.classList.add('active');
@@ -72,43 +73,45 @@ function updateDarkMode(isDark) {
     document.documentElement.style.backgroundAttachment = 'scroll';
 }
 
-// iOS Safari bottom bar fix - RESTORED WITH PROPER FIX
+// iOS Safari bottom bar fix - improved
 function fixSafariBottomBar() {
+    // Check if Safari on iOS
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
     if (isIOS) {
-        // CRITICAL: Get the actual visible viewport height
+        // Get the actual visible viewport height
         const visibleHeight = window.innerHeight;
         
         // Apply to body and html
         document.body.style.minHeight = visibleHeight + 'px';
         document.documentElement.style.minHeight = visibleHeight + 'px';
         
-        // CRITICAL: Fix for jumpToTop button position relative to bottom bar
+        // Fix for jumpToTop button
         const jumpBtn = document.getElementById('jumpToTop');
         if (jumpBtn && !jumpBtn.classList.contains('hidden')) {
             // Ensure button is above bottom bar
-            if (window.visualViewport) {
-                const bottomBarHeight = Math.max(0, window.visualViewport.height - window.innerHeight);
-                jumpBtn.style.bottom = `max(30px, ${bottomBarHeight + 30}px)`;
-            }
+            jumpBtn.style.bottom = `max(30px, ${window.visualViewport ? window.visualViewport.height - window.innerHeight + 30 : 30}px)`;
         }
         
         // Add extra padding to chapter-nav on iOS
         const chapterNav = document.querySelector('.chapter-nav');
-        if (chapterNav && window.visualViewport) {
-            const bottomBarHeight = Math.max(0, window.visualViewport.height - window.innerHeight);
+        if (chapterNav) {
+            const bottomBarHeight = window.visualViewport ? 
+                window.visualViewport.height - window.innerHeight : 0;
             chapterNav.style.paddingBottom = `calc(2rem + ${bottomBarHeight}px)`;
         }
     }
 }
 
-// iOS viewport height fix
+// iOS viewport height fix - SIMPLIFIED
 function setVh() {
+    // For iOS specifically, ensure body takes full height
     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
         const height = window.innerHeight;
         document.body.style.minHeight = height + 'px';
         document.documentElement.style.height = height + 'px';
+        
+        // Additional fix for bottom bar
         fixSafariBottomBar();
     }
 }
@@ -118,7 +121,7 @@ setVh();
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
 
-// Use visualViewport API if available
+// Use visualViewport API if available (more accurate for Safari)
 if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', function() {
         if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
@@ -158,13 +161,17 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Loading saved preference...');
     console.log('Local storage value:', localStorage.getItem('darkMode'));
 
+    // Check if there's a saved preference
     const savedMode = localStorage.getItem('darkMode');
     
     if (savedMode === 'light') {
+        // User previously chose light mode
         updateDarkMode(false);
         console.log('Setting to light mode based on storage');
     } else {
+        // Default to dark mode (includes first-time visitors and those with 'dark' saved)
         updateDarkMode(true);
+        // If first time, save the default
         if (!savedMode) {
             localStorage.setItem('darkMode', 'dark');
         }
@@ -182,36 +189,34 @@ document.addEventListener('DOMContentLoaded', function() {
         window.showChapter(1);
     }
 
-    // ============= JUMP TO TOP - SIMPLIFIED AND FIXED FOR SAFARI =============
+    // ============= JUMP TO TOP - COMPLETELY REWRITTEN FOR MOBILE SAFARI =============
     const jumpBtn = document.getElementById('jumpToTop');
     const tocContainer = document.querySelector('.toc-container');
 
     if (jumpBtn) {
-        // Function to check scroll position and show/hide button
         function checkScroll() {
-            // Get scroll position reliably across browsers
-            const scrollY = window.pageYOffset || 
-                           document.documentElement.scrollTop || 
-                           document.body.scrollTop || 
-                           0;
+            // Get scroll position (works on all browsers)
+            const scrollTop = window.pageYOffset || 
+                             document.documentElement.scrollTop || 
+                             document.body.scrollTop || 
+                             0;
             
-            // Show button when scrolled past TOC or past 200px
             if (tocContainer) {
                 const tocRect = tocContainer.getBoundingClientRect();
-                const isPastTOC = tocRect.bottom < 0; // TOC is above viewport
+                const isPastTOC = tocRect.bottom < 50;
                 
-                if (isPastTOC || scrollY > 200) {
+                if (isPastTOC || scrollTop > 150) {
                     jumpBtn.classList.remove('hidden');
-                    // Update button position when visible
+                    // Update button position for bottom bar
                     if (window.visualViewport) {
-                        const bottomBarHeight = Math.max(0, window.visualViewport.height - window.innerHeight);
+                        const bottomBarHeight = window.visualViewport.height - window.innerHeight;
                         jumpBtn.style.bottom = `max(30px, ${bottomBarHeight + 30}px)`;
                     }
                 } else {
                     jumpBtn.classList.add('hidden');
                 }
             } else {
-                if (scrollY > 150) {
+                if (scrollTop > 150) {
                     jumpBtn.classList.remove('hidden');
                 } else {
                     jumpBtn.classList.add('hidden');
@@ -219,42 +224,43 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Scroll to top function that works on all browsers
+        // SIMPLE SCROLL TO TOP FUNCTION THAT WORKS ON SAFARI
         function scrollToTop() {
-            // Hide button immediately for better UX
+            // Hide button
             jumpBtn.classList.add('hidden');
             
-            // Try smooth scrolling first
+            // METHOD 1: Simple instant scroll (always works)
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // METHOD 2: Try smooth scroll (may not work on Safari, but that's okay)
             try {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
             } catch (e) {
-                // Fallback for older browsers
-                document.documentElement.scrollTop = 0;
-                document.body.scrollTop = 0;
+                // Ignore errors, we already did instant scroll
             }
             
-            // Reset button position after scroll
-            setTimeout(fixSafariBottomBar, 300);
+            return false;
         }
         
-        // Add event listeners
+        // CLICK EVENT (works on all browsers)
         jumpBtn.addEventListener('click', function(e) {
             e.preventDefault();
             scrollToTop();
             return false;
         });
         
-        // Touch support for mobile
+        // TOUCH EVENT for mobile
         jumpBtn.addEventListener('touchstart', function(e) {
             e.preventDefault();
             scrollToTop();
             return false;
         }, { passive: false });
         
-        // Listen for scroll events with requestAnimationFrame for performance
+        // Scroll monitoring
         let ticking = false;
         window.addEventListener('scroll', function() {
             if (!ticking) {
@@ -266,11 +272,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Also check on touch end for mobile
+        // Additional events
         window.addEventListener('touchend', checkScroll);
         window.addEventListener('resize', checkScroll);
         
-        // Initial checks
+        // Periodic check
+        setInterval(checkScroll, 200);
+        
+        // Initial check
         setTimeout(checkScroll, 100);
         checkScroll();
     }
