@@ -74,21 +74,18 @@ body.light {
     --shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
+/* Replace the html and body styles with this */
+
 html {
     height: 100%;
     min-height: 100%;
-    background-image: url('assets/lightmodetree.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* Critical: Use scroll instead of fixed for iOS */
-    background-attachment: scroll;
-    /* Ensure proper rendering */
-    -webkit-text-size-adjust: 100%;
+    /* Remove the background image from html */
+    background-image: none !important; /* We'll move this to body */
+    background-color: transparent;
 }
 
 html.dark {
-    background-image: url('assets/darkmodeland.jpg');
+    background-image: none !important;
 }
 
 @media (max-width: 600px) {
@@ -103,9 +100,20 @@ html.dark {
 
 body {
     font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
-    background: transparent;
-    /* Remove all complex height calculations */
-    min-height: 100%;
+    
+    /* Move background to body */
+    background-image: url('assets/lightmodetree.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Use fixed for all browsers */
+    
+    /* Fix height calculation for Edge */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: stretch; /* Edge supports this */
+    
+    /* Display fixes */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,14 +122,48 @@ body {
     color: var(--text-main);
     transition: color 0.2s ease;
     margin: 0;
+    
     /* Ensure proper scrolling */
     overflow-y: auto;
-    /* overflow-x: hidden; <-- REMOVE THIS LINE IF IT EXISTS */
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    /* Flexbox fixes for Safari */
+    
+    /* Flexbox fixes */
     display: -webkit-flex;
     -webkit-flex-direction: column;
     -webkit-align-items: center;
+}
+
+body.light {
+    background-image: url('assets/lightmodetree.jpg');
+}
+
+body.dark {
+    background-image: url('assets/darkmodeland.jpg');
+}
+
+/* Edge-specific fix */
+@supports (-ms-ime-align:auto) {
+    body {
+        min-height: 100vh;
+        background-attachment: scroll; /* Edge works better with scroll */
+    }
+    
+    .doc-column {
+        margin: 80px auto 20px;
+        /* Ensure column doesn't cause scrolling issues */
+        max-width: 760px;
+        width: 100%;
+    }
+}
+
+/* iOS-specific fixes - keep these but modify */
+@supports (-webkit-touch-callout: none) {
+    body {
+        /* iOS needs different background handling */
+        background-attachment: scroll;
+        min-height: -webkit-fill-available;
+    }
 }
 
 /* iOS-specific viewport fixes - PROVEN FIX */

@@ -50,33 +50,36 @@ window.changeChapter = function(direction) {
 // Function to update dark/light mode
 function updateDarkMode(isDark) {
     if (isDark) {
-        // Dark mode - remove light class
-        document.documentElement.classList.remove('light');
+        // Dark mode
         document.body.classList.remove('light');
+        document.body.classList.add('dark');
         
-        // Set dark background
-        document.documentElement.style.backgroundColor = '#0a0e1a';
-        document.documentElement.style.backgroundImage = "url('assets/darkmodeland.jpg')";
+        // Update body background, not html
+        document.body.style.backgroundImage = "url('assets/darkmodeland.jpg')";
     } else {
-        // Light mode - add light class
-        document.documentElement.classList.add('light');
+        // Light mode
         document.body.classList.add('light');
+        document.body.classList.remove('dark');
         
-        // Set light background
-        document.documentElement.style.backgroundColor = '#e0e6f0';
-        document.documentElement.style.backgroundImage = "url('assets/lightmodetree.jpg')";
+        // Update body background, not html
+        document.body.style.backgroundImage = "url('assets/lightmodetree.jpg')";
     }
     
-    // Ensure background properties are set
-    document.documentElement.style.backgroundSize = 'cover';
-    document.documentElement.style.backgroundPosition = 'center';
-    document.documentElement.style.backgroundRepeat = 'no-repeat';
+    // Set background properties on body
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
     
-    // Use fixed on desktop, scroll on mobile
-    if (window.innerWidth > 600) {
-        document.documentElement.style.backgroundAttachment = 'fixed';
+    // Handle attachment based on browser
+    const isEdge = /edge\//i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    if (isEdge) {
+        document.body.style.backgroundAttachment = 'scroll';
+    } else if (isIOS) {
+        document.body.style.backgroundAttachment = 'scroll';
     } else {
-        document.documentElement.style.backgroundAttachment = 'scroll';
+        document.body.style.backgroundAttachment = window.innerWidth > 600 ? 'fixed' : 'scroll';
     }
 }
 
