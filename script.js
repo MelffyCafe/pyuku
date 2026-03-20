@@ -50,36 +50,46 @@ window.changeChapter = function(direction) {
 // Function to update dark/light mode
 function updateDarkMode(isDark) {
     if (isDark) {
-        // Dark mode - remove light class
         document.documentElement.classList.remove('light');
         document.body.classList.remove('light');
+        document.documentElement.classList.add('dark');
         
-        // Set dark background
         document.documentElement.style.backgroundColor = '#0a0e1a';
         document.documentElement.style.backgroundImage = "url('assets/darkmodeland.jpg')";
+        
+        // Also set on body for Edge
+        document.body.style.backgroundImage = "url('assets/darkmodeland.jpg')";
     } else {
-        // Light mode - add light class
         document.documentElement.classList.add('light');
         document.body.classList.add('light');
+        document.documentElement.classList.remove('dark');
         
-        // Set light background
         document.documentElement.style.backgroundColor = '#e0e6f0';
         document.documentElement.style.backgroundImage = "url('assets/lightmodetree.jpg')";
+        
+        // Also set on body for Edge
+        document.body.style.backgroundImage = "url('assets/lightmodetree.jpg')";
     }
     
     // Ensure background properties are set
-    document.documentElement.style.backgroundSize = 'cover';
-    document.documentElement.style.backgroundPosition = 'center';
-    document.documentElement.style.backgroundRepeat = 'no-repeat';
+    const bgProps = {
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+    };
+    
+    Object.assign(document.documentElement.style, bgProps);
+    Object.assign(document.body.style, bgProps);
     
     // Use fixed on desktop, scroll on mobile
     if (window.innerWidth > 600) {
         document.documentElement.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundAttachment = 'fixed';
     } else {
         document.documentElement.style.backgroundAttachment = 'scroll';
+        document.body.style.backgroundAttachment = 'scroll';
     }
 }
-
 // iOS Safari bottom bar fix - improved
 function fixSafariBottomBar() {
     // Check if Safari on iOS

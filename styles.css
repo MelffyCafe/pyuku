@@ -77,7 +77,6 @@ body.light {
 html {
     height: 100%;
     min-height: 100%;
-    background-image: url('assets/lightmodetree.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -85,27 +84,36 @@ html {
     -webkit-text-size-adjust: 100%;
 }
 
+/* Set backgrounds on both html and body for Edge */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Light mode background */
+html {
+    background-image: url('assets/lightmodetree.jpg');
+}
+
 html.dark {
     background-image: url('assets/darkmodeland.jpg');
+}
+
+/* Edge sometimes needs the body to have the background too */
+@supports (-ms-ime-align: auto) {
+    body {
+        background-image: inherit;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
 }
 
 /* Desktop fixed background */
 @media (min-width: 601px) {
     html {
         background-attachment: fixed;
-    }
-}
-
-/* Edge-specific fix */
-@supports (-ms-ime-align: auto) {
-    html {
-        background-attachment: scroll !important;
-        background-size: cover !important;
-    }
-    
-    body {
-        position: relative;
-        min-height: 100vh;
     }
 }
 
