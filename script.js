@@ -13,9 +13,8 @@ window.showChapter = function(num) {
     let selectedChapter = document.getElementById('chapter' + num);
     if (selectedChapter) selectedChapter.style.display = 'block';
     
-    // Update active class in TOC - WORKS WITH YOUR BUTTON ORDER
+    // Update active class in TOC
     document.querySelectorAll('.chapter-link').forEach((btn) => {
-        // Extract chapter number from the onclick attribute
         const onclickAttr = btn.getAttribute('onclick');
         if (onclickAttr && onclickAttr.includes(`showChapter(${num})`)) {
             btn.classList.add('active');
@@ -73,45 +72,25 @@ function updateDarkMode(isDark) {
     document.documentElement.style.backgroundAttachment = 'scroll';
 }
 
-// iOS Safari bottom bar fix - improved
+// iOS Safari bottom bar fix - simplified
 function fixSafariBottomBar() {
-    // Check if Safari on iOS
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
     if (isIOS) {
-        // Get the actual visible viewport height
-        const visibleHeight = window.innerHeight;
-        
-        // Apply to body and html
-        document.body.style.minHeight = visibleHeight + 'px';
-        document.documentElement.style.minHeight = visibleHeight + 'px';
-        
-        // Fix for jumpToTop button
-        const jumpBtn = document.getElementById('jumpToTop');
-        if (jumpBtn && !jumpBtn.classList.contains('hidden')) {
-            // Ensure button is above bottom bar
-            jumpBtn.style.bottom = `max(30px, ${window.visualViewport ? window.visualViewport.height - window.innerHeight + 30 : 30}px)`;
-        }
-        
         // Add extra padding to chapter-nav on iOS
         const chapterNav = document.querySelector('.chapter-nav');
-        if (chapterNav) {
-            const bottomBarHeight = window.visualViewport ? 
-                window.visualViewport.height - window.innerHeight : 0;
+        if (chapterNav && window.visualViewport) {
+            const bottomBarHeight = Math.max(0, window.visualViewport.height - window.innerHeight);
             chapterNav.style.paddingBottom = `calc(2rem + ${bottomBarHeight}px)`;
         }
     }
 }
 
-// iOS viewport height fix - SIMPLIFIED
+// iOS viewport height fix
 function setVh() {
-    // For iOS specifically, ensure body takes full height
     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-        const height = window.innerHeight;
-        document.body.style.minHeight = height + 'px';
-        document.documentElement.style.height = height + 'px';
-        
-        // Additional fix for bottom bar
+        document.body.style.minHeight = window.innerHeight + 'px';
+        document.documentElement.style.minHeight = window.innerHeight + 'px';
         fixSafariBottomBar();
     }
 }
@@ -121,7 +100,7 @@ setVh();
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
 
-// Use visualViewport API if available (more accurate for Safari)
+// Use visualViewport API if available
 if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', function() {
         if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
@@ -161,17 +140,13 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Loading saved preference...');
     console.log('Local storage value:', localStorage.getItem('darkMode'));
 
-    // Check if there's a saved preference
     const savedMode = localStorage.getItem('darkMode');
     
     if (savedMode === 'light') {
-        // User previously chose light mode
         updateDarkMode(false);
         console.log('Setting to light mode based on storage');
     } else {
-        // Default to dark mode (includes first-time visitors and those with 'dark' saved)
         updateDarkMode(true);
-        // If first time, save the default
         if (!savedMode) {
             localStorage.setItem('darkMode', 'dark');
         }
@@ -189,111 +164,90 @@ document.addEventListener('DOMContentLoaded', function() {
         window.showChapter(1);
     }
 
-// JUMP TO TOP - FIXED FOR MOBILE using scrollingElement
-const jumpBtn = document.getElementById('jumpToTop');
-const tocContainer = document.querySelector('.toc-container');
-let lastScrollY = window.scrollY;
-let ticking = false;
+    // ============= JUMP TO TOP - SIMPLIFIED AND FIXED FOR SAFARI =============
+    const jumpBtn = document.getElementById('jumpToTop');
+    const tocContainer = document.querySelector('.toc-container');
 
-if (jumpBtn) {
-    function checkScroll() {
-        // Use scrollingElement for better mobile compatibility
-        const scrollTop = document.scrollingElement ? document.scrollingElement.scrollTop : window.scrollY;
-        
-        if (tocContainer) {
-            const tocRect = tocContainer.getBoundingClientRect();
+    if (jumpBtn) {
+        // Function to check scroll position and show/hide button
+        function checkScroll() {
+            // Get scroll position reliably across browsers
+            const scrollY = window.pageYOffset || 
+                           document.documentElement.scrollTop || 
+                           document.body.scrollTop || 
+                           0;
             
-            // Use a more generous threshold for iOS
-            const isPastTOC = tocRect.bottom < 100;
-            const hasScrolledSignificantly = scrollTop > 150;
+            // Show button when scrolled past TOC or past 200px
+            if (tocContainer) {
+                const tocRect = tocContainer.getBoundingClientRect();
+                const isPastTOC = tocRect.bottom < 0; // TOC is above viewport
+                
+                if (isPastTOC || scrollY > 200) {
+                    jumpBtn.classList.remove('hidden');
+                } else {
+                    jumpBtn.classList.add('hidden');
+                }
+            } else {
+                if (scrollY > 150) {
+                    jumpBtn.classList.remove('hidden');
+                } else {
+                    jumpBtn.classList.add('hidden');
+                }
+            }
+        }
+        
+        // Scroll to top function that works on all browsers
+        function scrollToTop() {
+            // Hide button immediately for better UX
+            jumpBtn.classList.add('hidden');
             
-            if (isPastTOC || hasScrolledSignificantly) {
-                jumpBtn.classList.remove('hidden');
-            } else {
-                jumpBtn.classList.add('hidden');
-            }
-        } else {
-            if (scrollTop > 150) {
-                jumpBtn.classList.remove('hidden');
-            } else {
-                jumpBtn.classList.add('hidden');
-            }
-        }
-        ticking = false;
-    }
-    
-    // Multiple event listeners for iOS
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(checkScroll);
-            ticking = true;
-        }
-    });
-    
-    window.addEventListener('touchend', checkScroll);
-    window.addEventListener('resize', checkScroll);
-    
-    // Periodic check for iOS
-    setInterval(checkScroll, 200);
-    
-    // Initial check with delay to ensure DOM is ready
-    setTimeout(checkScroll, 100);
-    checkScroll();
-    
-    // FIXED CLICK HANDLER using scrollingElement
-    jumpBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Hide button
-        jumpBtn.classList.add('hidden');
-        
-        // Use scrollingElement for maximum compatibility
-        if (document.scrollingElement) {
-            // Modern approach
-            document.scrollingElement.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        } else {
-            // Fallback
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-        
-        return false;
-    });
-    
-    // Touch event for mobile
-    jumpBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Hide button
-        jumpBtn.classList.add('hidden');
-        
-        // Immediate scroll for mobile
-        if (document.scrollingElement) {
-            document.scrollingElement.scrollTop = 0;
-            // Also try smooth scroll
+            // Try smooth scrolling first
             try {
-                document.scrollingElement.scrollTo({
+                window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
             } catch (e) {
-                // Fallback if smooth scroll fails
-                document.scrollingElement.scrollTop = 0;
+                // Fallback for older browsers
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
             }
-        } else {
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
         }
         
-        return false;
-    }, { passive: false });
-}
+        // Add event listeners
+        jumpBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            scrollToTop();
+            return false;
+        });
+        
+        // Touch support for mobile
+        jumpBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            scrollToTop();
+            return false;
+        }, { passive: false });
+        
+        // Listen for scroll events with requestAnimationFrame for performance
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    checkScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+        
+        // Also check on touch end for mobile
+        window.addEventListener('touchend', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        
+        // Initial checks
+        setTimeout(checkScroll, 100);
+        checkScroll();
+    }
     
     // Apply Safari bottom bar fix after load
     setTimeout(fixSafariBottomBar, 300);
