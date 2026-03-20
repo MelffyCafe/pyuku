@@ -60,7 +60,6 @@
     --blur-amount: 6px;
     --vh: 100%;
     --safe-bottom: env(safe-area-inset-bottom, 0);
-    color-scheme: light dark;
 }
 
 /* Light mode overrides - applied when body has 'light' class */
@@ -75,37 +74,38 @@ body.light {
     --shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-/* Replace the html and body styles with this */
-
 html {
     height: 100%;
     min-height: 100%;
+    background-image: url('assets/lightmodetree.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed; /* Use fixed for desktop */
-    background-color: #0a0e1a; /* Default dark background color */
+    /* Critical: Use scroll instead of fixed for iOS */
+    background-attachment: scroll;
+    /* Ensure proper rendering */
+    -webkit-text-size-adjust: 100%;
 }
 
-/* Light mode background - will be toggled by JS */
-html.light {
-    background-color: #e0e6f0;
-}
-
-/* Dark mode background - will be toggled by JS */
 html.dark {
-    background-color: #0a0e1a;
+    background-image: url('assets/darkmodeland.jpg');
+}
+
+@media (max-width: 600px) {
+    html {
+        height: 100%;
+    }
+    
+    body {
+        min-height: 100%;
+    }
 }
 
 body {
     font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
-    background: transparent; /* Make body transparent */
-    
-    /* Fix height calculation for Edge */
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    
-    /* Display fixes */
+    background: transparent;
+    /* Remove all complex height calculations */
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,36 +114,22 @@ body {
     color: var(--text-main);
     transition: color 0.2s ease;
     margin: 0;
-    
     /* Ensure proper scrolling */
     overflow-y: auto;
-    overflow-x: hidden;
+    /* overflow-x: hidden; <-- REMOVE THIS LINE IF IT EXISTS */
     -webkit-overflow-scrolling: touch;
-    
-    /* Flexbox fixes */
+    /* Flexbox fixes for Safari */
     display: -webkit-flex;
     -webkit-flex-direction: column;
     -webkit-align-items: center;
 }
 
-/* Edge-specific fix */
-@supports (-ms-ime-align:auto) {
-    html {
-        background-attachment: scroll; /* Edge works better with scroll */
-    }
-    
-    .doc-column {
-        margin: 80px auto 20px;
-        max-width: 760px;
-        width: 100%;
-    }
-}
-
-/* iOS-specific fixes */
+/* iOS-specific viewport fixes - PROVEN FIX */
 @supports (-webkit-touch-callout: none) {
     html {
-        background-attachment: scroll; /* iOS needs scroll */
         height: -webkit-fill-available;
+        overflow: hidden;
+        background-attachment: scroll;
     }
     
     body {
@@ -154,6 +140,8 @@ body {
         -webkit-overflow-scrolling: touch;
         padding: 0 1rem;
         padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+        /* Add safe area padding if needed */
+        padding-bottom: env(safe-area-inset-bottom, 1rem);
     }
     
     /* Ensure fixed elements stay put with safe areas */
