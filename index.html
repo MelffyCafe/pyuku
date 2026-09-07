@@ -12,10 +12,10 @@
 <body>
 <div id="echoverie"></div>
     <div class="top-button-bar">
-        <button id="darkmode-toggle">🌓 Dark / Light</button>
+        <button id="darkmode-toggle" aria-label="Toggle dark and light mode">🌓 Dark / Light</button>
     </div>
 
-    <a href="#echoverie" id="jumpToTop" class="hidden">↑ Jump to Top</a>
+    <a href="#echoverie" id="jumpToTop" class="hidden" aria-label="Jump to top of page">↑ Jump to Top</a>
 
     <main class="doc-column">
         <div class="story-header">
@@ -25,7 +25,7 @@
             </div>
             <div class="word-count">16,000 Words・By Chaiden</div>
         </div>
-<div class="toc-container">
+<nav class="toc-container" aria-label="Table of contents">
     <h2>Table of Contents</h2>
     <div class="chapter-list">
         <button class="chapter-link active" onclick="showChapter(1)">Chapter One</button>
@@ -42,7 +42,7 @@
     <div class="chapter-eleven-wrapper">
         <button class="chapter-link" onclick="showChapter(11)">Chapter Eleven</button>
     </div>
-</div>
+</nav>
         <section class="chapter-view" id="chapter1">
             <h2 class="chapter-title">Chapter One</h2>
             <div class="chapter-content">
@@ -189,11 +189,11 @@
             </div>
         </section>
 
-        <div class="chapter-nav">
-            <button id="prevBtn" onclick="changeChapter(-1)">← Previous</button>
-            <span id="chapterIndicator">1 / 11</span>
-            <button id="nextBtn" onclick="changeChapter(1)">Next →</button>
-        </div>
+        <nav class="chapter-nav" aria-label="Page navigation">
+            <button id="prevBtn" onclick="changeChapter(-1)" aria-label="Previous chapter">← Previous</button>
+            <span id="chapterIndicator" aria-live="polite" aria-atomic="true">1 / 11</span>
+            <button id="nextBtn" onclick="changeChapter(1)" aria-label="Next chapter">Next →</button>
+        </nav>
     </main>
 
     <!-- Link to external JavaScript file -->
