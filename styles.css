@@ -470,6 +470,17 @@ body.dark {
     }
 }
 
+.chapter-eleven-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.chapter-eleven-wrapper .chapter-link {
+    width: auto;
+    max-width: 200px;
+}
+
 .chapter-link {
     font-family: 'Elsie', serif;
     font-weight: 400;
