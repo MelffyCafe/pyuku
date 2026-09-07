@@ -454,6 +454,7 @@ body.dark {
     grid-template-columns: 1fr 1fr;
     gap: 0.7rem 1.5rem;
     justify-items: center; /* center content inside grid cells */
+    margin-bottom: 1rem;
 }
 
 /* Mobile chapter list */
@@ -523,6 +524,25 @@ body.dark .chapter-link.active {
 
 body.dark .chapter-link:hover {
     background: #3f4e5f;
+}
+
+/* Standalone Chapter Eleven button - outside grid layout */
+.chapter-eleven-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.chapter-link.chapter-eleven {
+    width: auto;
+    max-width: 200px;
+}
+
+/* Mobile chapter eleven */
+@media (max-width: 600px) {
+    .chapter-link.chapter-eleven {
+        max-width: 150px;
+    }
 }
 
 .chapter-view {
