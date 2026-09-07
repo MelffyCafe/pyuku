@@ -431,10 +431,12 @@ body.dark {
     font-family: 'Elsie', serif;
     font-weight: 400;
     font-size: 1.6rem;
-    border-left: 5px solid var(--accent-line);
-    padding-left: 1rem;
+    /* removed left border to center the title */
+    border-left: none;
+    padding-left: 0;
     margin-bottom: 1.2rem;
     text-transform: capitalize;
+    text-align: center; /* center the TOC title */
 }
 
 /* Mobile TOC title */
@@ -452,10 +454,21 @@ body.dark {
     gap: 0.7rem 1.5rem;
 }
 
+/* Ensure the final chapter sits centered and spans both columns */
+.chapter-list .chapter-link:last-child {
+    grid-column: 1 / -1; /* span both columns */
+    justify-self: center; /* center within the grid */
+    width: auto; /* let it size to content */
+    max-width: 220px; /* prevents it getting too wide */
+}
+
 /* Mobile chapter list */
 @media (max-width: 600px) {
     .chapter-list {
         gap: 0.5rem 1rem;
+    }
+    .chapter-list .chapter-link:last-child {
+        max-width: 100%;
     }
 }
 
@@ -474,7 +487,7 @@ body.dark {
     border-radius: 40px;
     cursor: pointer;
     border: none;
-    text-align: left;
+    text-align: center; /* centered text for TOC buttons */
     color: var(--text-main);
     width: 100%;
     text-transform: capitalize;
