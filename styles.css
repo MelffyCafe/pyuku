@@ -477,8 +477,7 @@ body.dark {
 }
 
 .chapter-eleven-wrapper .chapter-link {
-    width: auto;
-    max-width: 200px;
+ width: calc(50% - 0.75rem);
 }
 
 .chapter-link {
