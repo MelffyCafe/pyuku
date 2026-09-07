@@ -1,10 +1,15 @@
 // Make functions global by attaching to window
 window.currentChapter = 1;
+window.totalChapters = 11; // UPDATED total chapters
 
 // Function to show a specific chapter
 window.showChapter = function(num, scrollToChapter = true) {
+    // Clamp num to valid range
+    if (num < 1) num = 1;
+    if (num > window.totalChapters) num = window.totalChapters;
+
     // Hide all chapters
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= window.totalChapters; i++) {
         let chapter = document.getElementById('chapter' + i);
         if (chapter) chapter.style.display = 'none';
     }
@@ -42,13 +47,13 @@ window.showChapter = function(num, scrollToChapter = true) {
     // Update chapter number and buttons
     window.currentChapter = num;
     let indicator = document.getElementById('chapterIndicator');
-    if (indicator) indicator.textContent = num + ' / 10';
+    if (indicator) indicator.textContent = num + ' / ' + window.totalChapters;
     
     let prevBtn = document.getElementById('prevBtn');
     let nextBtn = document.getElementById('nextBtn');
     
     if (prevBtn) prevBtn.disabled = (num === 1);
-    if (nextBtn) nextBtn.disabled = (num === 10);
+    if (nextBtn) nextBtn.disabled = (num === window.totalChapters);
     
     // Save to browser
     localStorage.setItem('currentChapter', num);
@@ -57,7 +62,7 @@ window.showChapter = function(num, scrollToChapter = true) {
 // Function to change chapter by direction
 window.changeChapter = function(direction) {
     let newChapter = window.currentChapter + direction;
-    if (newChapter >= 1 && newChapter <= 10) {
+    if (newChapter >= 1 && newChapter <= window.totalChapters) {
         window.showChapter(newChapter);
     }
 };
@@ -220,89 +225,89 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Body has light class?', document.body.classList.contains('light'));
     console.log('=== END DIAGNOSIS ===\n');
 
-// Load last chapter - pass false to NOT scroll (start at top)
-const savedChapter = localStorage.getItem('currentChapter');
-if (savedChapter) {
-    window.showChapter(parseInt(savedChapter), false);
-} else {
-    window.showChapter(1, false);
-}
-
-// JUMP TO TOP - FIXED FOR MOBILE using scrollingElement
-const jumpBtn = document.getElementById('jumpToTop');
-const tocContainer = document.querySelector('.toc-container');
-let lastScrollY = window.scrollY;
-let ticking = false;
-
-if (jumpBtn) {
-    function checkScroll() {
-        // Use scrollingElement for better mobile compatibility
-        const scrollTop = document.scrollingElement ? document.scrollingElement.scrollTop : window.scrollY;
-        
-        if (tocContainer) {
-            const tocRect = tocContainer.getBoundingClientRect();
-            
-            // Use a more generous threshold for iOS
-            const isPastTOC = tocRect.bottom < 100;
-            const hasScrolledSignificantly = scrollTop > 150;
-            
-            if (isPastTOC || hasScrolledSignificantly) {
-                jumpBtn.classList.remove('hidden');
-            } else {
-                jumpBtn.classList.add('hidden');
-            }
-        } else {
-            if (scrollTop > 150) {
-                jumpBtn.classList.remove('hidden');
-            } else {
-                jumpBtn.classList.add('hidden');
-            }
-        }
-        ticking = false;
+    // Load last chapter - pass false to NOT scroll (start at top)
+    const rawSaved = localStorage.getItem('currentChapter');
+    let savedChapter = parseInt(rawSaved, 10);
+    if (!Number.isInteger(savedChapter) || savedChapter < 1 || savedChapter > window.totalChapters) {
+        savedChapter = 1;
     }
-    
-    // Multiple event listeners for iOS
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(checkScroll);
-            ticking = true;
+    window.showChapter(savedChapter, false);
+
+    // JUMP TO TOP - FIXED FOR MOBILE using scrollingElement
+    const jumpBtn = document.getElementById('jumpToTop');
+    const tocContainer = document.querySelector('.toc-container');
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    if (jumpBtn) {
+        function checkScroll() {
+            // Use scrollingElement for better mobile compatibility
+            const scrollTop = document.scrollingElement ? document.scrollingElement.scrollTop : window.scrollY;
+            
+            if (tocContainer) {
+                const tocRect = tocContainer.getBoundingClientRect();
+                
+                // Use a more generous threshold for iOS
+                const isPastTOC = tocRect.bottom < 100;
+                const hasScrolledSignificantly = scrollTop > 150;
+                
+                if (isPastTOC || hasScrolledSignificantly) {
+                    jumpBtn.classList.remove('hidden');
+                } else {
+                    jumpBtn.classList.add('hidden');
+                }
+            } else {
+                if (scrollTop > 150) {
+                    jumpBtn.classList.remove('hidden');
+                } else {
+                    jumpBtn.classList.add('hidden');
+                }
+            }
+            ticking = false;
         }
-    });
-    
-    window.addEventListener('touchend', checkScroll);
-    window.addEventListener('resize', checkScroll);
-    
-    // Periodic check for iOS
-    setInterval(checkScroll, 200);
-    
-    // Initial check with delay to ensure DOM is ready
-    setTimeout(checkScroll, 100);
-    checkScroll();
-    
-    // FIXED CLICK HANDLER - REMOVED preventDefault()
-    jumpBtn.addEventListener('click', function(e) {
-        // DO NOT use e.preventDefault() - let the anchor do its job
         
-        // Hide button
-        jumpBtn.classList.add('hidden');
+        // Multiple event listeners for iOS
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(checkScroll);
+                ticking = true;
+            }
+        });
         
-        // Let the anchor href="#top-of-page" handle scrolling naturally
-        // No manual scroll code needed
+        window.addEventListener('touchend', checkScroll);
+        window.addEventListener('resize', checkScroll);
         
-        return true; // Allow default behavior
-    });
-    
-    // FIXED TOUCH EVENT - REMOVED preventDefault()
-    jumpBtn.addEventListener('touchstart', function(e) {
-        // DO NOT use e.preventDefault() - let the anchor do its job
+        // Periodic check for iOS
+        setInterval(checkScroll, 200);
         
-        // Hide button
-        jumpBtn.classList.add('hidden');
+        // Initial check with delay to ensure DOM is ready
+        setTimeout(checkScroll, 100);
+        checkScroll();
         
-        return true; // Allow default behavior
-    }, { passive: true }); // Changed to passive: true
-}
-    
+        // FIXED CLICK HANDLER - REMOVED preventDefault()
+        jumpBtn.addEventListener('click', function(e) {
+            // DO NOT use e.preventDefault() - let the anchor do its job
+            
+            // Hide button
+            jumpBtn.classList.add('hidden');
+            
+            // Let the anchor href="#top-of-page" handle scrolling naturally
+            // No manual scroll code needed
+            
+            return true; // Allow default behavior
+        });
+        
+        // FIXED TOUCH EVENT - REMOVED preventDefault()
+        jumpBtn.addEventListener('touchstart', function(e) {
+            // DO NOT use e.preventDefault() - let the anchor do its job
+            
+            // Hide button
+            jumpBtn.classList.add('hidden');
+            
+            return true; // Allow default behavior
+        }, { passive: true }); // Changed to passive: true
+    }
+        
     // Apply Safari bottom bar fix after load
     setTimeout(fixSafariBottomBar, 300);
 });
