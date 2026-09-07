@@ -3,8 +3,11 @@ window.currentChapter = 1;
 
 // Function to show a specific chapter
 window.showChapter = function(num, scrollToChapter = true) {
+    // Count chapters dynamically so the total never drifts out of sync
+    const totalChapters = document.querySelectorAll('.chapter-view').length;
+
     // Hide all chapters
-    for (let i = 1; i <= 11; i++) {
+    for (let i = 1; i <= totalChapters; i++) {
         let chapter = document.getElementById('chapter' + i);
         if (chapter) chapter.style.display = 'none';
     }
@@ -42,13 +45,13 @@ window.showChapter = function(num, scrollToChapter = true) {
     // Update chapter number and buttons
     window.currentChapter = num;
     let indicator = document.getElementById('chapterIndicator');
-    if (indicator) indicator.textContent = num + ' / 11';
+    if (indicator) indicator.textContent = num + ' / ' + totalChapters;
     
     let prevBtn = document.getElementById('prevBtn');
     let nextBtn = document.getElementById('nextBtn');
     
     if (prevBtn) prevBtn.disabled = (num === 1);
-    if (nextBtn) nextBtn.disabled = (num === 11);
+    if (nextBtn) nextBtn.disabled = (num === totalChapters);
     
     // Save to browser
     localStorage.setItem('currentChapter', num);
@@ -56,8 +59,9 @@ window.showChapter = function(num, scrollToChapter = true) {
 
 // Function to change chapter by direction
 window.changeChapter = function(direction) {
+    const totalChapters = document.querySelectorAll('.chapter-view').length;
     let newChapter = window.currentChapter + direction;
-    if (newChapter >= 1 && newChapter <= 11) {
+    if (newChapter >= 1 && newChapter <= totalChapters) {
         window.showChapter(newChapter);
     }
 };
