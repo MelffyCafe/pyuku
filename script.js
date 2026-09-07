@@ -175,42 +175,27 @@ if (window.visualViewport) {
 
 // Wait for page to load before setting up
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== DARK MODE DIAGNOSIS ===');
-    
     // Dark mode toggle
     let darkModeBtn = document.getElementById('darkmode-toggle');
     if (darkModeBtn) {
-        console.log('Dark mode button found');
-        
         darkModeBtn.addEventListener('click', function() {
-            console.log('=== BUTTON CLICKED ===');
-            
             // Check if light class exists (meaning we're in light mode)
             const isLight = document.body.classList.contains('light');
             
             // Update mode - if light class exists, go to dark; if not, go to light
             updateDarkMode(isLight);
             
-            console.log('After toggle - Light class?', document.body.classList.contains('light'));
-            
             localStorage.setItem('darkMode', document.body.classList.contains('light') ? 'light' : 'dark');
-            console.log('Local storage saved as:', localStorage.getItem('darkMode'));
         });
-    } else {
-        console.log('ERROR: Dark mode button NOT found!');
     }
 
     // Load dark mode preference - DEFAULT TO DARK MODE
-    console.log('Loading saved preference...');
-    console.log('Local storage value:', localStorage.getItem('darkMode'));
-
     // Check if there's a saved preference
     const savedMode = localStorage.getItem('darkMode');
     
     if (savedMode === 'light') {
         // User previously chose light mode
         updateDarkMode(false);
-        console.log('Setting to light mode based on storage');
     } else {
         // Default to dark mode (includes first-time visitors and those with 'dark' saved)
         updateDarkMode(true);
@@ -218,11 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!savedMode) {
             localStorage.setItem('darkMode', 'dark');
         }
-        console.log('Setting to dark mode');
     }
-    
-    console.log('Body has light class?', document.body.classList.contains('light'));
-    console.log('=== END DIAGNOSIS ===\n');
 
 // Load last chapter - pass false to NOT scroll (start at top)
 const savedChapter = localStorage.getItem('currentChapter');
